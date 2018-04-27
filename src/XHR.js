@@ -268,7 +268,7 @@ export default class XHR {
 	 */
 	_sendRequest(method, url, body, options, requestParams) {
 		const xhr = new XMLHttpRequest();
-		xhr.responseType = 'json';
+
 		if (options.timeout) {
 			xhr.timeout = options.timeout;
 		}
@@ -327,6 +327,12 @@ export default class XHR {
 	_sendXHRRequest(xhr, body, observer, options, requestParams) {
 		return new Promise((resolve, reject) => {
 			xhr.addEventListener('readystatechange', (event) => {
+				// IE - Set XMLHttpRequest.responseType while in UNSENT raised InvalidStateError
+				// https://developer.microsoft.com/en-us/microsoft-edge/platform/issues/1649320/
+				try {
+					xhr.responseType = 'json';
+				} catch(e) {}
+				
 				if (observer.onstatechange) {
 					observer.onstatechange(event);
 				}
